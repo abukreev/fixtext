@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# (c) https://habr.com/ru/post/279499/
+
 IFS="\n"
 
 LOG="/home/abukreev/fixtext.log"
