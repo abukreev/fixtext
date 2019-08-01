@@ -19,6 +19,8 @@ printf "FIXED = \"%s\"\n" $FIXED >> $LOG
 
 printf "%s" "$FIXED" | xsel -b -i
 
+sleep 0.05
+
 xdotool key ctrl+v
 xdotool key alt+shift
 
