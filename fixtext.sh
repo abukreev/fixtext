@@ -7,20 +7,24 @@ echo "------------" >> "$LOG"
 
 export YDOTOOL_SOCKET=/tmp/.ydotool.socket
 
-BUFFER="$(xsel)"
+BUFFER="$(xsel -o)"
 printf "BUFFER = \"%s\"\n" $BUFFER >> "$LOG"
 
 #if [ -z "$BUFFER" ] && [ $# -gt 0 ]; then
 #    printf "111\n" >> "$LOG"
 #    if [ "$1" == "-l" ] || [ "$1" == "--line" ]; then
 #        printf "222\n" >> "$LOG"
-##        ydotool key 19b:0
-#        # shift+left
+###        ydotool key 19b:0
+#        # ctrl+shift+left
+#        ydotool key 29:1
 #        ydotool key 42:1
 #        ydotool key 105:1
+#        sleep 0.1
 #        ydotool key 105:0
 #        ydotool key 42:0
-#        BUFFER="$(xsel)"
+#        ydotool key 29:0
+#        sleep 0.2
+#        BUFFER="$(xsel -o)"
 #        printf "BUFFER = \"%s\"\n" $BUFFER >> "$LOG"
 ##        exit 0
 ##        sleep 0.1
@@ -30,7 +34,6 @@ printf "BUFFER = \"%s\"\n" $BUFFER >> "$LOG"
 #        exit 1
 #    fi
 #fi
-
 
 if [ -z "$BUFFER" ]; then
     printf "Buffer is empty\n" >> "$LOG"
@@ -54,14 +57,14 @@ sleep 0.1
 ydotool key 47:0
 ydotool key 29:0
 
-#sleep 0.1
+sleep 0.1
 #alt+shift
-#ydotool key 56:1
-#ydotool key 42:1
-#ydotool key 42:0
-#ydotool key 56:0
+ydotool key 56:1
+ydotool key 42:1
+ydotool key 42:0
+ydotool key 56:0
 
-#sleep 0.1
+sleep 0.1
 
 printf "%s" "$BACKUP" | xsel -bi
 
