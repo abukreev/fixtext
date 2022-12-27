@@ -16,8 +16,6 @@ KEY_L_CTRL=29
 KEY_V=47
 KEY_CAPS=58
 
-os.environ["YDOTOOL_SOCKET"] = "/tmp/.ydotool.socket"
-
 def fixLayout(inp):
     LAT="`qwertyuiop[]asdfghjkl;'zxcvbnm,./"
     CYR="ёйцукенгшщзхъфывапролджэячсмитьбю."
@@ -37,15 +35,17 @@ def fixLayout(inp):
     return output
 
 def runCommand(args, inp=None):
-    logger.debug('args = %s', args)
     process = Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     (output, err) = process.communicate(input=inp.encode("utf-8") if inp else None)
-    logger.debug('out = %s', output)
     res = process.wait()
     return res, output.decode("utf-8"), err.decode("utf-8")
 
 class XSelYDoToolStrategy:
     _timeout = 0.1
+
+    def __init__(self):
+        os.environ["YDOTOOL_SOCKET"] = "/tmp/.ydotool.socket"
+
     @staticmethod
     def getSelectionBuffer():
         res, output, err = runCommand(["xsel", "-o"])
