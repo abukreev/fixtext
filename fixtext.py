@@ -16,6 +16,7 @@ KEY_L_CTRL=29
 KEY_V=47
 KEY_CAPS=58
 
+
 def fixLayout(inp):
     LAT="`qwertyuiop[]asdfghjkl;'zxcvbnm,./"
     CYR="ёйцукенгшщзхъфывапролджэячсмитьбю."
@@ -34,18 +35,26 @@ def fixLayout(inp):
             output = output + symbol
     return output
 
+
 def runCommand(args, inp=None):
     process = Popen(args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
     (output, err) = process.communicate(input=inp.encode("utf-8") if inp else None)
     res = process.wait()
     return res, output.decode("utf-8"), err.decode("utf-8")
 
-class XSelYDoToolStrategy:
-    _timeout = 0.1
 
+class YDoToolStartegy:
     def __init__(self):
         os.environ["YDOTOOL_SOCKET"] = "/tmp/.ydotool.socket"
 
+    def keyPress(self, keyCode):
+         runCommand(['ydotool', 'key', f"{keyCode}:1"])
+
+    def keyRelease(self, keyCode):
+         runCommand(['ydotool', 'key', f"{keyCode}:0"])
+
+
+class XSelStrategy:
     @staticmethod
     def getSelectionBuffer():
         res, output, err = runCommand(["xsel", "-o"])
@@ -69,39 +78,57 @@ class XSelYDoToolStrategy:
             return output
         raise RuntimeError(f'xsel failed: {err}')
 
+
+class XSelYDoToolStrategy:
+    _timeout = 0.1
+    _clipboardStrartegy = XSelStrategy()
+    _keyStrategy = YDoToolStartegy()
+
+    @staticmethod
+    def getSelectionBuffer():
+        return XSelYDoToolStrategy._clipboardStrartegy.getSelectionBuffer()
+
+    @staticmethod
+    def getClipboardContents():
+        return XSelYDoToolStrategy._clipboardStrartegy.getClipboardContents()
+
+    @staticmethod
+    def copyToClipboard(string):
+        return XSelYDoToolStrategy._clipboardStrartegy.copyToClipboard(string)
+
     @staticmethod
     def pasteFromClipboard():
-        runCommand(['ydotool', 'key', f"{KEY_L_CTRL}:1"])
-        runCommand(['ydotool', 'key', f"{KEY_V}:1"     ])
-        runCommand(['ydotool', 'key', f"{KEY_V}:0"     ])
-        runCommand(['ydotool', 'key', f"{KEY_L_CTRL}:0"])
+        XSelYDoToolStrategy._keyStrategy.keyPress(KEY_L_CTRL)
+        XSelYDoToolStrategy._keyStrategy.keyPress(KEY_V)
+        XSelYDoToolStrategy._keyStrategy.keyRelease(KEY_V)
+        XSelYDoToolStrategy._keyStrategy.keyRelease(KEY_L_CTRL)
         sleep(XSelYDoToolStrategy._timeout)
 
     @staticmethod
     def switchLocale():
-        runCommand(['ydotool', 'key', f"{KEY_CAPS}:1"])
-        runCommand(['ydotool', 'key', f"{KEY_CAPS}:0"])
+        XSelYDoToolStrategy._keyStrategy.keyPress(KEY_CAPS)
+        XSelYDoToolStrategy._keyStrategy.keyRelease(KEY_CAPS)
 
 def main():
-    strategy = XSelYDoToolStrategy()
+    _strategy = XSelYDoToolStrategy()
     
-    buf = strategy.getSelectionBuffer()
+    buf = _strategy.getSelectionBuffer()
     logger.debug('SelectionBuffer: "%s"', buf)
     if (not buf):
         return 0
-    backup = strategy.getClipboardContents()    
+    backup = _strategy.getClipboardContents()    
     logger.debug('Backup clipboard: "%s"', backup)
     fixed = fixLayout(buf)
     logger.debug('Fixed string: "%s"', fixed)
-    strategy.copyToClipboard(fixed)
+    _strategy.copyToClipboard(fixed)
     logger.debug('Successfully copied fixed text to clipboard')
-    sleep(strategy._timeout)
-    strategy.pasteFromClipboard()
+    sleep(_strategy._timeout)
+    _strategy.pasteFromClipboard()
     logger.debug('Successfully paste fixed text from clipboard')
     if (backup):
-        strategy.copyToClipboard(backup)
+        _strategy.copyToClipboard(backup)
         logger.debug('Successfully restored clipboard contents')
-    strategy.switchLocale()
+    _strategy.switchLocale()
     logger.debug('Successfully switched the locale')
     return 0
 
