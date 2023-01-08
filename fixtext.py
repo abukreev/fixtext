@@ -18,8 +18,8 @@ KEY_CAPS=58
 
 
 def fixLayout(inp):
-    LAT="`qwertyuiop[]asdfghjkl;'zxcvbnm,./"
-    CYR="ёйцукенгшщзхъфывапролджэячсмитьбю."
+    LAT="`qwertyuiop[]asdfghjkl;'zxcvbnm,./~QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?"
+    CYR="ёйцукенгшщзхъфывапролджэячсмитьбю.ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,"
     assert len(LAT) == len(CYR)
     LatToCyr = dict(zip(LAT, CYR))
     CyrToLat = dict(zip(CYR, LAT))
